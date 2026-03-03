@@ -2,13 +2,16 @@ name: Arxiv Stein Bot
 
 on:
   schedule:
-    # 每天北京时间上午 9:00 运行 (UTC 01:00)
     - cron: '0 1 * * *'
-  workflow_dispatch: # 允许手动点击运行，方便测试
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 必须增加这一行权限，否则无法推送更新后的 processed_ids.txt
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,3 +29,11 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
+
+      - name: Commit and push if database changed
+        run: |
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "actions@github.com"
+          git add processed_ids.txt
+          # 只有在文件有变动时才提交，防止报错
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update processed paper IDs" && git push)
