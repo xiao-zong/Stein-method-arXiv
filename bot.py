@@ -125,7 +125,7 @@ if __name__ == "__main__":
                 all_new_ids.append(paper_id)
                 processed_ids.add(paper_id)
                 # Small delay to avoid hitting Telegram/Gemini rate limits
-                time.sleep(2) 
+                time.sleep(12) 
 
     # 3. Update the local database for GitHub Action to commit back
     if all_new_ids:
